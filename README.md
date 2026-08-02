@@ -1,50 +1,77 @@
 # TrendForge
 
-Daily trend + content engine for creators and small businesses.
-Coral Bloom theme, Next.js 14 + Tailwind, 5 tabs: Oracle, Forge, Coach, Promote, Hack.
+Frontend: `index.html` (Coral Bloom theme, all 5 tabs, login/register).
+Backend: `/api` folder — Vercel serverless functions, no separate server needed.
 
-## Run it locally
+## Folder structure
 
-```bash
-npm install
-npm run dev
+```
+trendforge/
+├── index.html          Your site — deployed as-is, no build step
+├── api/
+│   ├── register.js     Creates a user (email, password, business_name, niche, content_type)
+│   ├── login.js         Logs a user in
+│   ├── coach.js          AI chat — replies personalized to the business profile
+│   ├── forge.js          Generates 3 post ideas for a given trend + niche
+│   └── trends-cron.js    Auto-refreshes trends every 3 days (drafts only, needs approval)
+├── supabase/
+│   └── schema.sql        Database tables to create in Supabase
+├── vercel.json            Schedules the cron job
+├── package.json
+└── .env.example
 ```
 
-Then open http://localhost:3000
+## Setup steps
 
-## Push to your GitHub repo
+**1. Create a Supabase project** (free tier is fine)
+   - supabase.com → New project
+   - Go to SQL Editor → paste the contents of `supabase/schema.sql` → Run
+   - Go to Project Settings → API → copy your `Project URL` and `service_role` key
 
-You already have an empty repo ready. From inside this `trendforge` folder:
+**2. Get an OpenAI API key**
+   - platform.openai.com → API keys → create one
 
-```bash
-git init
-git add .
-git commit -m "Initial TrendForge frontend"
-git branch -M main
-git remote add origin https://github.com/<your-username>/<your-repo-name>.git
-git push -u origin main
+**3. Set environment variables in Vercel**
+   - Your Vercel project → Settings → Environment Variables
+   - Add: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `OPENAI_API_KEY`, `CRON_SECRET` (make up any random string for this last one)
+
+**4. Push this folder to your GitHub repo, then redeploy on Vercel**
+   - Vercel auto-detects `/api/*.js` as serverless functions — no framework config needed
+   - `index.html` is served as your homepage automatically
+
+## Connecting the frontend to these endpoints
+
+Right now `index.html` uses mock/static data. To make it real, replace the fake JS logic with real calls, for example:
+
+```javascript
+// Coach tab — sending a message
+const res = await fetch('/api/coach', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    user_id: currentUser.id,
+    business_name: currentUser.business_name,
+    niche: currentUser.niche,
+    content_type: currentUser.content_type,
+    message: userMessage
+  })
+});
+const { reply } = await res.json();
 ```
 
-Replace `<your-username>` and `<your-repo-name>` with your actual GitHub username and repo name.
+```javascript
+// Register
+const res = await fetch('/api/register', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ email, password, business_name, niche, content_type })
+});
+const { user } = await res.json();
+// save `user` in localStorage or a cookie so it persists across page loads
+```
 
-## Deploy (optional, once pushed)
+## Notes on the trend cron
 
-Vercel deploys straight from a GitHub repo with zero config for Next.js:
-1. Go to vercel.com → New Project
-2. Import the repo you just pushed
-3. Click Deploy — no settings needed, it detects Next.js automatically
-
-## What's built (frontend only, no backend yet)
-
-- Login / register screens (register captures business name, niche, content type)
-- Oracle — today's trends
-- Forge — AI-generated post ideas (currently static/mock content)
-- Coach — AI chat, replies reference the registered business (currently mock replies)
-- Promote — collab matching + growth checklist
-- Hack — viral post pattern breakdowns
-
-## Next steps (not yet wired up)
-
-- Supabase for real auth + database (users, trends, ideas, chat_messages tables)
-- OpenAI API call for real Coach replies and Forge idea generation
-- Cron job to auto-refresh trends every 3 days
+`trends-cron.js` writes new trends with `status: 'pending'` — they won't show in the app
+until someone flips them to `'approved'` in Supabase's table editor. This is a safety
+gate so an AI-hallucinated trend never reaches users unreviewed.
