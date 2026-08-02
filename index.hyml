@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TrendForge — Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --orange:#FF6F5E; --orange-deep:#E5503E; --cream:#FFF7ED; --white:#FFFFFF;
+    --charcoal:#33302C; --charcoal-soft:#847C72; --green:#2FBF9F; --gray:#ACA399; --line:#F3E4D3;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%; text-size-adjust:100%;}
+  body{margin:0; font-family:'Inter',sans-serif; background:#EDE4D3; display:flex; justify-content:center; align-items:center; padding:32px 12px; color:var(--charcoal); min-height:100vh; min-height:100dvh;}
+  .phone{width:100%; max-width:420px; background:var(--cream); border-radius:36px; overflow:hidden; box-shadow:0 30px 60px -20px rgba(45,45,45,0.35), 0 0 0 10px #2D2D2D; position:relative; height:860px; max-height:92vh; max-height:92dvh; display:flex; flex-direction:column;}
+  @media (max-width:480px){
+    body{padding:0; align-items:stretch;}
+    .phone{width:100vw; height:100vh; height:100dvh; max-height:none; border-radius:0; box-shadow:none;}
+  }
+  .statusbar{display:flex; justify-content:space-between; align-items:center; padding:14px 24px 4px; font-size:13px; font-weight:600; flex-shrink:0;}
+  .icon{width:20px; height:20px; stroke:currentColor; stroke-width:1.8; fill:none; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0;}
+  .icon-sm{width:16px; height:16px;}
+
+  /* ---------- AUTH SCREENS ---------- */
+  .auth-screen{flex:1; display:flex; flex-direction:column; padding:36px 26px 30px; overflow-y:auto;}
+  .auth-mark{width:52px; height:52px; background:linear-gradient(135deg,var(--orange),#FFA694); border-radius:16px; display:flex; align-items:center; justify-content:center; margin-bottom:20px; box-shadow:0 8px 18px rgba(255,111,94,0.35);}
+  .auth-mark .icon{stroke:white; width:26px; height:26px;}
+  .auth-title{font-family:'Baloo 2',sans-serif; font-size:26px; font-weight:700; margin:0 0 6px; letter-spacing:-0.4px;}
+  .auth-sub{font-size:13.5px; color:var(--charcoal-soft); margin:0 0 26px; line-height:1.5;}
+  .field-label{font-size:12.5px; font-weight:700; margin-bottom:6px; display:block; color:var(--charcoal);}
+  .field-wrap{position:relative; margin-bottom:14px;}
+  .field-wrap .icon{position:absolute; left:14px; top:14px; color:var(--gray);}
+  .field-input{width:100%; padding:13px 14px 13px 40px; border-radius:12px; border:1.5px solid var(--line); background:var(--white); font-family:'Inter',sans-serif; font-size:14px; color:var(--charcoal);}
+  .field-input:focus{outline:none; border-color:var(--orange);}
+  select.field-input{padding-left:14px; appearance:none;}
+  .field-row{display:flex; gap:10px;}
+  .field-row .field-wrap{flex:1;}
+  .btn-primary{display:block; width:100%; background:var(--charcoal); color:var(--cream); border:none; padding:14px; border-radius:14px; font-family:'Inter',sans-serif; font-weight:700; font-size:14.5px; cursor:pointer; text-align:center;}
+  .auth-switch{text-align:center; font-size:13px; color:var(--charcoal-soft); margin-top:18px;}
+  .auth-error{background:#FDECEA; color:#C0392B; font-size:12.5px; font-weight:600; padding:10px 13px; border-radius:10px; margin-bottom:12px;}
+  .auth-switch a{color:var(--orange-deep); font-weight:700; text-decoration:none; cursor:pointer;}
+
+  /* ---------- APP SHELL ---------- */
+  .topbar{padding:6px 20px 14px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0;}
+  .brand{display:flex; align-items:center; gap:9px;}
+  .brand-mark{width:34px; height:34px; background:linear-gradient(135deg,var(--orange),#FFA694); border-radius:10px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(255,111,94,0.35);}
+  .brand-mark .icon{stroke:white; width:18px; height:18px;}
+  .brand-name{font-family:'Baloo 2',sans-serif; font-weight:700; font-size:19px; letter-spacing:-0.3px;}
+  .profile-chip{display:flex; align-items:center; gap:6px; background:var(--white); padding:6px 12px 6px 6px; border-radius:999px; border:1px solid var(--line); cursor:pointer;}
+  .profile-avatar{width:24px; height:24px; border-radius:50%; background:var(--charcoal); color:var(--cream); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; font-family:'Baloo 2',sans-serif;}
+  .profile-name{font-size:12.5px; font-weight:600;}
+
+  .content{flex:1; overflow-y:auto; padding:4px 20px 100px; -webkit-overflow-scrolling:touch;}
+  .content::-webkit-scrollbar{width:0;}
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block; animation:fadein .25s ease;}
+  @keyframes fadein{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+
+  h1.page-title{font-family:'Baloo 2',sans-serif; font-size:22px; font-weight:700; margin:10px 0 2px; letter-spacing:-0.3px;}
+  .page-sub{font-size:13.5px; color:var(--charcoal-soft); margin:0 0 18px;}
+
+  .pills{display:flex; gap:8px; overflow-x:auto; padding-bottom:6px; margin-bottom:18px;}
+  .pills::-webkit-scrollbar{display:none;}
+  .pill{flex-shrink:0; padding:8px 16px; border-radius:999px; background:var(--white); border:1px solid var(--line); font-size:13px; font-weight:600; color:var(--charcoal-soft); cursor:pointer; white-space:nowrap;}
+  .pill.active{background:var(--charcoal); color:var(--cream); border-color:var(--charcoal);}
+
+  .hero-card{background:linear-gradient(150deg,#FF6F5E 0%, #E5503E 100%); border-radius:22px; padding:22px; color:white; margin-bottom:16px; box-shadow:0 14px 30px -12px rgba(229,80,62,0.5);}
+  .hero-badge{display:inline-flex; align-items:center; gap:6px; background:rgba(255,255,255,0.22); padding:5px 11px; border-radius:999px; font-size:12px; font-weight:700; letter-spacing:0.3px; margin-bottom:12px;}
+  .hero-badge .icon{stroke:white; width:13px; height:13px;}
+  .hero-title{font-family:'Baloo 2',sans-serif; font-size:24px; font-weight:700; margin:0 0 6px; line-height:1.15;}
+  .hero-meta{display:flex; gap:16px; margin:14px 0 16px;}
+  .hero-stat .num{font-family:'Baloo 2',sans-serif; font-size:17px; font-weight:700; display:flex; align-items:center; gap:5px;}
+  .hero-stat .num .icon{stroke:white; width:15px; height:15px;}
+  .hero-stat .label{font-size:11px; opacity:.85; font-weight:500;}
+  .hero-why{background:rgba(255,255,255,0.16); border-radius:14px; padding:12px 14px; font-size:13px; line-height:1.5; margin-bottom:16px;}
+  .hero-card .btn-primary{background:white; color:var(--orange-deep);}
+
+  .section-label{font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--charcoal-soft); margin:20px 0 10px;}
+
+  .trend-row{display:flex; align-items:center; gap:12px; background:var(--white); border:1px solid var(--line); border-radius:16px; padding:13px 14px; margin-bottom:10px;}
+  .trend-rank{width:30px; height:30px; border-radius:9px; background:var(--cream); display:flex; align-items:center; justify-content:center; font-family:'Baloo 2',sans-serif; font-weight:700; font-size:13px; color:var(--orange-deep); flex-shrink:0;}
+  .trend-row-title{font-size:14px; font-weight:600;}
+  .trend-row-sub{font-size:12px; color:var(--charcoal-soft); margin-top:1px;}
+  .trend-tag{margin-left:auto; font-size:11px; font-weight:700; padding:4px 9px; border-radius:999px; flex-shrink:0;}
+  .tag-rising{background:#E8F5E9; color:var(--green);}
+  .tag-niche{background:#F1ECE3; color:#9A8C6D;}
+
+  .context-bar{background:var(--white); border:1px dashed var(--orange); border-radius:14px; padding:11px 14px; font-size:12.5px; margin-bottom:16px; display:flex; align-items:center; gap:8px;}
+  .context-bar .icon{stroke:var(--orange-deep); width:16px; height:16px;}
+  .context-bar b{color:var(--orange-deep);}
+
+  .idea-card{background:var(--white); border:1px solid var(--line); border-radius:18px; padding:16px; margin-bottom:14px;}
+  .idea-num{font-family:'Baloo 2',sans-serif; color:var(--orange); font-size:12px; font-weight:700; letter-spacing:.4px; text-transform:uppercase; margin-bottom:8px; display:block;}
+  .idea-hook{font-size:15px; font-weight:700; margin-bottom:10px; line-height:1.3;}
+  .idea-script{list-style:none; padding:0; margin:0 0 10px; font-size:13px; color:var(--charcoal-soft);}
+  .idea-script li{padding-left:16px; position:relative; margin-bottom:5px; line-height:1.4;}
+  .idea-script li:before{content:"—"; position:absolute; left:0; color:var(--orange);}
+  .idea-caption{font-size:12.5px; background:var(--cream); padding:10px 12px; border-radius:10px; margin-bottom:8px; line-height:1.5;}
+  .idea-tags{font-size:12px; color:var(--orange-deep); font-weight:600; margin-bottom:12px;}
+  .btn-copy{background:transparent; border:1.5px solid var(--charcoal); color:var(--charcoal); padding:8px 14px; border-radius:10px; font-size:12.5px; font-weight:700; cursor:pointer; width:100%;}
+  .btn-copy:active{background:var(--charcoal); color:var(--cream);}
+  .btn-secondary{width:100%; background:transparent; border:1.5px dashed var(--orange); color:var(--orange-deep); padding:13px; border-radius:14px; font-weight:700; font-size:13.5px; cursor:pointer; margin:6px 0 4px;}
+
+  /* Coach chat */
+  .chat-scroll{display:flex; flex-direction:column; gap:12px; padding-bottom:12px;}
+  .msg{max-width:82%; padding:11px 14px; border-radius:16px; font-size:13.5px; line-height:1.5;}
+  .msg.ai{background:var(--white); border:1px solid var(--line); align-self:flex-start; border-bottom-left-radius:4px;}
+  .msg.user{background:var(--charcoal); color:var(--cream); align-self:flex-end; border-bottom-right-radius:4px;}
+  .chat-suggestions{display:flex; gap:8px; overflow-x:auto; margin:4px 0 16px;}
+  .chat-suggestions::-webkit-scrollbar{display:none;}
+  .suggestion-chip{flex-shrink:0; background:var(--white); border:1px solid var(--line); padding:8px 13px; border-radius:999px; font-size:12px; font-weight:600; color:var(--orange-deep); cursor:pointer; white-space:nowrap;}
+  .chat-input-bar{position:absolute; bottom:82px; left:0; right:0; background:var(--cream); padding:10px 20px; display:flex; gap:8px; border-top:1px solid var(--line);}
+  .chat-input{flex:1; padding:12px 14px; border-radius:999px; border:1.5px solid var(--line); background:var(--white); font-size:13.5px; font-family:'Inter',sans-serif;}
+  .chat-input:focus{outline:none; border-color:var(--orange);}
+  .chat-send{width:42px; height:42px; border-radius:50%; background:var(--orange); border:none; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;}
+  .chat-send .icon{stroke:white; width:18px; height:18px;}
+
+  /* Promote */
+  .stat-banner{background:var(--charcoal); color:var(--cream); border-radius:18px; padding:18px; margin-bottom:18px; display:flex; justify-content:space-between; align-items:center;}
+  .stat-banner .num{font-family:'Baloo 2',sans-serif; font-size:26px; font-weight:700; color:var(--orange);}
+  .stat-banner .label{font-size:12px; opacity:.75; max-width:170px; line-height:1.4;}
+  .stat-banner .icon{stroke:var(--orange); width:28px; height:28px;}
+
+  .swipe-card{background:var(--white); border-radius:20px; padding:20px; border:1px solid var(--line); margin-bottom:16px; text-align:center;}
+  .swipe-avatar{width:56px; height:56px; border-radius:50%; background:linear-gradient(135deg,#FFA694,var(--orange)); margin:0 auto 12px; display:flex; align-items:center; justify-content:center; font-family:'Baloo 2',sans-serif; font-weight:700; color:white; font-size:18px;}
+  .swipe-title{font-family:'Baloo 2',sans-serif; font-weight:700; font-size:16px; margin-bottom:4px;}
+  .swipe-sub{font-size:12.5px; color:var(--charcoal-soft); margin-bottom:14px;}
+  .swipe-actions{display:flex; gap:10px;}
+  .swipe-btn{flex:1; padding:11px; border-radius:12px; font-weight:700; font-size:13px; border:none; cursor:pointer;}
+  .swipe-pass{background:var(--cream); color:var(--charcoal-soft); border:1px solid var(--line);}
+  .swipe-match{background:var(--green); color:white;}
+
+  .checklist-row{display:flex; align-items:center; gap:12px; background:var(--white); border:1px solid var(--line); border-radius:14px; padding:12px 14px; margin-bottom:9px;}
+  .check-circle{width:22px; height:22px; border-radius:50%; border:2px solid var(--line); flex-shrink:0; display:flex; align-items:center; justify-content:center; cursor:pointer;}
+  .check-circle.done{background:var(--green); border-color:var(--green);}
+  .check-circle.done .icon{stroke:white; width:13px; height:13px;}
+  .checklist-text{font-size:13px; font-weight:600;}
+  .checklist-sub{font-size:11.5px; color:var(--charcoal-soft); margin-top:1px;}
+
+  .hack-card{background:var(--white); border:1px solid var(--line); border-radius:18px; overflow:hidden; margin-bottom:16px;}
+  .hack-thumb{height:150px; background:linear-gradient(135deg,#2D2D2D,#4A4A4A); display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,.4); font-size:13px; font-weight:600; position:relative;}
+  .hack-views{position:absolute; top:10px; right:10px; background:rgba(0,0,0,.55); color:white; font-size:11px; font-weight:700; padding:4px 9px; border-radius:999px;}
+  .hack-body{padding:14px 16px;}
+  .hack-why{font-size:13px; line-height:1.5; color:var(--charcoal-soft); margin-bottom:14px;}
+  .adapt-row{display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-top:1px solid var(--line); font-size:13px;}
+  .adapt-niche{font-weight:700; color:var(--orange-deep); width:70px; flex-shrink:0;}
+  .adapt-text{color:var(--charcoal-soft); flex:1;}
+  .archive-row{display:flex; align-items:center; gap:10px; padding:11px 0; border-bottom:1px solid var(--line); font-size:13px;}
+  .archive-row:last-child{border-bottom:none;}
+  .archive-dot{width:6px; height:6px; border-radius:50%; background:var(--orange); flex-shrink:0;}
+
+  .bottomnav{position:absolute; bottom:0; left:0; right:0; background:var(--white); border-top:1px solid var(--line); display:flex; padding:9px 4px calc(12px + env(safe-area-inset-bottom)); flex-shrink:0; z-index:5;}
+  .navitem{flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; background:none; border:none; cursor:pointer; padding:5px 1px; color:var(--gray); font-family:'Inter',sans-serif;}
+  .navitem .icon{width:20px; height:20px;}
+  .navitem .label{font-size:10px; font-weight:600;}
+  .navitem.active{color:var(--orange-deep);}
+
+  .caption-note{font-size:11.5px; color:var(--charcoal-soft); text-align:center; margin-top:10px;}
+</style>
+</head>
+<body>
+
+<div class="phone">
+
+  <!-- ================= AUTH: LOGIN ================= -->
+  <div class="auth-screen" id="screen-login">
+    <div class="statusbar"><span>9:41</span><span>● ● ● ●</span></div>
+    <div class="auth-mark"><svg class="icon" viewBox="0 0 24 24"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg></div>
+    <div class="auth-title">Welcome back</div>
+    <div class="auth-sub">Log in to get today's trends and tips built around your business.</div>
+
+    <label class="field-label">Email</label>
+    <div class="field-wrap">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M3 6h18v12H3z"/><path d="m3 7 9 6 9-6"/></svg>
+      <input class="field-input" id="login-email" type="email" placeholder="you@business.com">
+    </div>
+    <label class="field-label">Password</label>
+    <div class="field-wrap">
+      <svg class="icon" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+      <input class="field-input" id="login-password" type="password" placeholder="••••••••">
+    </div>
+    <div class="auth-error" id="login-error" style="display:none;"></div>
+    <button class="btn-primary" id="login-btn" onclick="handleLogin()">Log in</button>
+    <div class="auth-switch">New here? <a onclick="showScreen('register')">Register your business</a></div>
+  </div>
+
+  <!-- ================= AUTH: REGISTER ================= -->
+  <div class="auth-screen" id="screen-register" style="display:none;">
+    <div class="statusbar"><span>9:41</span><span>● ● ● ●</span></div>
+    <div class="auth-mark"><svg class="icon" viewBox="0 0 24 24"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg></div>
+    <div class="auth-title">Register your business</div>
+    <div class="auth-sub">Tell us what you do — your trends, ideas, and coaching all get tailored to this.</div>
+
+    <label class="field-label">Business name</label>
+    <div class="field-wrap">
+      <svg class="icon" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 9h16M9 4v16"/></svg>
+      <input class="field-input" id="reg-name" type="text" placeholder="e.g. Nomsa's Cakes">
+    </div>
+
+    <label class="field-label">What best describes your business?</label>
+    <div class="field-wrap">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>
+      <select class="field-input" id="reg-niche">
+        <option>Business & services</option>
+        <option>Fitness</option>
+        <option>Beauty</option>
+        <option>Food</option>
+        <option>Tech</option>
+        <option>Education</option>
+      </select>
+    </div>
+
+    <label class="field-label">Content you mainly post</label>
+    <div class="field-wrap">
+      <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="5" width="14" height="14" rx="2"/><path d="m21 8-4 3 4 3z"/></svg>
+      <select class="field-input" id="reg-content">
+        <option>Short video / Reels</option>
+        <option>Photos</option>
+        <option>Written / blog</option>
+        <option>Livestream</option>
+      </select>
+    </div>
+
+    <div class="field-row">
+      <div class="field-wrap">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M3 6h18v12H3z"/><path d="m3 7 9 6 9-6"/></svg>
+        <input class="field-input" id="reg-email" type="email" placeholder="Email">
+      </div>
+      <div class="field-wrap">
+        <svg class="icon" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+        <input class="field-input" id="reg-password" type="password" placeholder="Password">
+      </div>
+    </div>
+
+    <div class="auth-error" id="register-error" style="display:none;"></div>
+    <button class="btn-primary" id="register-btn" onclick="handleRegister()">Create account</button>
+    <div class="auth-switch">Already registered? <a onclick="showScreen('login')">Log in</a></div>
+  </div>
+
+  <!-- ================= MAIN APP ================= -->
+  <div id="screen-app" style="display:none; flex-direction:column; flex:1; height:100%;">
+    <div class="statusbar"><span>9:41</span><span>● ● ● ●</span></div>
+
+    <div class="topbar">
+      <div class="brand">
+        <div class="brand-mark"><svg class="icon" viewBox="0 0 24 24"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg></div>
+        <div class="brand-name">TrendForge</div>
+      </div>
+      <div class="profile-chip" onclick="logout()">
+        <div class="profile-avatar" id="profile-initial">N</div>
+        <span class="profile-name" id="profile-name-chip">Nomsa's Cakes</span>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- TAB: ORACLE -->
+      <div class="tab-panel active" id="tab-oracle">
+        <h1 class="page-title">Today's trends</h1>
+        <p class="page-sub">Updated this morning · 5 trends worth using</p>
+
+        <div class="pills">
+          <div class="pill active">All</div><div class="pill">Business</div><div class="pill">Fitness</div><div class="pill">Beauty</div><div class="pill">Food</div><div class="pill">Tech</div>
+        </div>
+
+        <div class="hero-card">
+          <span class="hero-badge"><svg class="icon" viewBox="0 0 24 24"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg> HOT · #1 TODAY</span>
+          <div class="hero-title">"POV: my morning routine" audio</div>
+          <div class="hero-meta">
+            <div class="hero-stat"><div class="num"><svg class="icon" viewBox="0 0 24 24"><path d="m3 17 6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>Rising fast</div><div class="label">Growth this week</div></div>
+            <div class="hero-stat"><div class="num"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>2 days</div><div class="label">Estimated peak window</div></div>
+          </div>
+          <div class="hero-why"><b>Why it works:</b> Routines feel relatable and low-effort to film, and viewers trust people who show process over polish.</div>
+          <button class="btn-primary" onclick="showTab('forge')">Get 3 ideas using this →</button>
+        </div>
+
+        <div class="section-label">More trends today</div>
+        <div class="trend-row"><div class="trend-rank">2</div><div><div class="trend-row-title">"Tell me without telling me" format</div><div class="trend-row-sub">Comedy · Business</div></div><div class="trend-tag tag-rising">Rising</div></div>
+        <div class="trend-row"><div class="trend-rank">3</div><div><div class="trend-row-title">Slow-zoom before/after edits</div><div class="trend-row-sub">Fitness · Beauty</div></div><div class="trend-tag tag-rising">Rising</div></div>
+        <div class="trend-row"><div class="trend-rank">4</div><div><div class="trend-row-title">Whisper-voice product reviews</div><div class="trend-row-sub">Tech · Beauty</div></div><div class="trend-tag tag-niche">Niche</div></div>
+        <div class="trend-row"><div class="trend-rank">5</div><div><div class="trend-row-title">"Day in my business" vlogs</div><div class="trend-row-sub">Business</div></div><div class="trend-tag tag-niche">Niche</div></div>
+      </div>
+
+      <!-- TAB: FORGE -->
+      <div class="tab-panel" id="tab-forge">
+        <h1 class="page-title">Make your post</h1>
+        <p class="page-sub">Pick your niche, get 3 ready-to-film ideas</p>
+        <div class="pills"><div class="pill active">Business</div><div class="pill">Fitness</div><div class="pill">Beauty</div><div class="pill">Food</div><div class="pill">Education</div></div>
+        <div class="context-bar"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l2.5 2.5"/></svg> Using trend: <b id="forge-trend-name">"POV: my morning routine" audio</b></div>
+
+        <div id="forge-ideas">
+          <div class="idea-card">
+            <span class="idea-num">Idea 1</span>
+            <div class="idea-hook">"The 6am habit that changed how I run my business"</div>
+            <ul class="idea-script"><li>Open on your actual morning — no staging</li><li>Show one small decision you make before 7am</li><li>Cut to a result it led to this week</li></ul>
+            <div class="idea-caption">Not glamorous. Just consistent. Here's what actually happens before I open my laptop.</div>
+            <div class="idea-tags">#morningroutine #smallbusiness #founderlife #dayinmylife #consistency</div>
+            <button class="btn-copy">Copy all</button>
+          </div>
+          <div class="idea-card">
+            <span class="idea-num">Idea 2</span>
+            <div class="idea-hook">"POV: you finally systemized your morning chaos"</div>
+            <ul class="idea-script"><li>Quick montage of your old chaotic mornings</li><li>Show the one system that fixed it</li><li>End on how much time it saves weekly</li></ul>
+            <div class="idea-caption">I used to lose an hour every morning to decision fatigue. Here's the fix that stuck.</div>
+            <div class="idea-tags">#productivity #businessowner #systems #timemanagement #growth</div>
+            <button class="btn-copy">Copy all</button>
+          </div>
+          <div class="idea-card">
+            <span class="idea-num">Idea 3</span>
+            <div class="idea-hook">"What my morning looks like at 2 employees vs. 20"</div>
+            <ul class="idea-script"><li>Split-screen or before/after framing</li><li>Name one thing you stopped doing yourself</li><li>Name one thing you'll never delegate</li></ul>
+            <div class="idea-caption">Scaling changes your mornings more than your revenue. Here's the real shift.</div>
+            <div class="idea-tags">#scaling #entrepreneur #delegation #businessgrowth #founder</div>
+            <button class="btn-copy">Copy all</button>
+          </div>
+        </div>
+        <button class="btn-secondary" id="forge-regen-btn" onclick="regenIdeas()">Generate 3 new ideas</button>
+        <p class="caption-note">Your ideas are saved to your account</p>
+      </div>
+
+      <!-- TAB: COACH (AI CHAT) -->
+      <div class="tab-panel" id="tab-coach" style="padding-bottom:70px;">
+        <h1 class="page-title">Coach</h1>
+        <p class="page-sub" id="coach-sub">Ask anything about growing Nomsa's Cakes</p>
+
+        <div class="chat-scroll" id="chat-scroll">
+          <div class="msg ai">Hi — I've got your profile: <b>Nomsa's Cakes</b>, Food niche, mostly short video. Ask me anything about what to post or how to grow, and I'll tailor it to that.</div>
+          <div class="msg user">What's the best way to grow my following this month?</div>
+          <div class="msg ai">For a food business on short video, consistency beats polish. Post 4–5×/week using today's Oracle trend, reply to every comment in the first hour, and pin your best-performing video to your profile so new visitors see it first.</div>
+          <div class="msg user">Should I run a giveaway?</div>
+          <div class="msg ai">Giveaways work well for bakeries specifically — try "tag a friend + follow" with a small cake as the prize. Keep the ask to one action so it's easy to enter, and announce the winner on video for a natural follow-up post.</div>
+        </div>
+
+        <div class="chat-suggestions">
+          <div class="suggestion-chip" onclick="sendSuggestion(this)">Caption ideas for today</div>
+          <div class="suggestion-chip" onclick="sendSuggestion(this)">Best posting times</div>
+          <div class="suggestion-chip" onclick="sendSuggestion(this)">How to fix low views</div>
+        </div>
+      </div>
+
+      <!-- TAB: PROMOTE -->
+      <div class="tab-panel" id="tab-promote">
+        <h1 class="page-title">Promote</h1>
+        <p class="page-sub">Grow your account and find real collabs</p>
+
+        <div class="stat-banner">
+          <div><div class="num">1,204</div><div class="label">ideas generated today by creators like you</div></div>
+          <svg class="icon" viewBox="0 0 24 24"><path d="m3 17 6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>
+        </div>
+
+        <div class="section-label">Collab match</div>
+        <div class="swipe-card">
+          <div class="swipe-avatar">RF</div>
+          <div class="swipe-title">Ridge Fitness Studio</div>
+          <div class="swipe-sub">Gym · Harare · Looking for a food creator to trade content with</div>
+          <div class="swipe-actions"><button class="swipe-btn swipe-pass">Pass</button><button class="swipe-btn swipe-match">Connect</button></div>
+        </div>
+
+        <div class="section-label">Growth checklist</div>
+        <div class="checklist-row"><div class="check-circle done" onclick="toggleCheck(this)"><svg class="icon" viewBox="0 0 24 24"><path d="m5 13 4 4 10-10"/></svg></div><div><div class="checklist-text">Optimize your bio</div><div class="checklist-sub">Clear on what you sell + a way to contact you</div></div></div>
+        <div class="checklist-row"><div class="check-circle" onclick="toggleCheck(this)"></div><div><div class="checklist-text">Post at your peak time</div><div class="checklist-sub">6–8pm works best for Food audiences</div></div></div>
+        <div class="checklist-row"><div class="check-circle" onclick="toggleCheck(this)"></div><div><div class="checklist-text">Reply to every comment today</div><div class="checklist-sub">Boosts your post back into more feeds</div></div></div>
+      </div>
+
+      <!-- TAB: HACK -->
+      <div class="tab-panel" id="tab-hack">
+        <h1 class="page-title">Learn from what works</h1>
+        <p class="page-sub">Study the pattern, adapt it to your niche</p>
+        <div class="hack-card">
+          <div class="hack-thumb">Example post preview<span class="hack-views">2.1M views</span></div>
+          <div class="hack-body">
+            <div class="hack-why"><b>Why it worked:</b> Opens mid-story with no context, forcing viewers to watch for the reveal. Uses text-on-screen instead of voiceover, which keeps sound-off viewers watching too.</div>
+            <div class="section-label" style="margin-top:0;">Adapt this pattern</div>
+            <div class="adapt-row"><div class="adapt-niche">Business</div><div class="adapt-text">"Storytime: how I lost my first $5k client"</div></div>
+            <div class="adapt-row"><div class="adapt-niche">Fitness</div><div class="adapt-text">"Storytime: the injury that made me quit lifting"</div></div>
+            <div class="adapt-row"><div class="adapt-niche">Food</div><div class="adapt-text">"Storytime: the dish that got my page banned"</div></div>
+          </div>
+        </div>
+        <div class="section-label">Recent breakdowns</div>
+        <div class="hack-card" style="padding:4px 16px;">
+          <div class="archive-row"><div class="archive-dot"></div>Silent product demo w/ on-screen price reveal</div>
+          <div class="archive-row"><div class="archive-dot"></div>"Rating my own work" self-critique format</div>
+          <div class="archive-row"><div class="archive-dot"></div>Whisper-voice + close-up texture shots</div>
+          <div class="archive-row"><div class="archive-dot"></div>Fake customer service call skit</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Chat input — only visible on Coach tab -->
+    <div class="chat-input-bar" id="chat-input-bar" style="display:none;">
+      <input class="chat-input" id="chat-input" placeholder="Ask your coach anything...">
+      <button class="chat-send" onclick="sendChat()"><svg class="icon" viewBox="0 0 24 24"><path d="m3 20 18-8L3 4v6l12 2-12 2z"/></svg></button>
+    </div>
+
+    <div class="bottomnav">
+      <button class="navitem active" data-tab="oracle" onclick="showTab('oracle')"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/></svg><span class="label">Oracle</span></button>
+      <button class="navitem" data-tab="forge" onclick="showTab('forge')"><svg class="icon" viewBox="0 0 24 24"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg><span class="label">Forge</span></button>
+      <button class="navitem" data-tab="coach" onclick="showTab('coach')"><svg class="icon" viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 4z"/></svg><span class="label">Coach</span></button>
+      <button class="navitem" data-tab="promote" onclick="showTab('promote')"><svg class="icon" viewBox="0 0 24 24"><path d="m3 17 6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg><span class="label">Promote</span></button>
+      <button class="navitem" data-tab="hack" onclick="showTab('hack')"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="0.6" fill="currentColor"/></svg><span class="label">Hack</span></button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  var currentUser = null;
+
+  function showScreen(name){
+    document.getElementById('screen-login').style.display = name === 'login' ? 'flex' : 'none';
+    document.getElementById('screen-register').style.display = name === 'register' ? 'flex' : 'none';
+    document.getElementById('screen-app').style.display = 'none';
+    hideError('login-error'); hideError('register-error');
+  }
+
+  function showError(id, message){
+    var el = document.getElementById(id);
+    el.textContent = message;
+    el.style.display = 'block';
+  }
+  function hideError(id){
+    document.getElementById(id).style.display = 'none';
+  }
+
+  function setLoading(btnId, loadingText, isLoading, originalText){
+    var btn = document.getElementById(btnId);
+    btn.disabled = isLoading;
+    btn.textContent = isLoading ? loadingText : originalText;
+  }
+
+  // Called after a successful login OR register — populates the app shell with the real user
+  function enterApp(user){
+    currentUser = user;
+    localStorage.setItem('trendforge_user', JSON.stringify(user));
+
+    document.getElementById('profile-name-chip').textContent = user.business_name;
+    document.getElementById('profile-initial').textContent = user.business_name.split(' ').map(function(w){return w[0];}).join('').slice(0,2).toUpperCase();
+    document.getElementById('coach-sub').textContent = 'Ask anything about growing ' + user.business_name;
+    document.querySelector('#tab-coach .msg.ai').innerHTML = 'Hi — I\'ve got your profile: <b>' + user.business_name + '</b>, ' + user.niche + ' niche, mostly ' + user.content_type.toLowerCase() + '. Ask me anything about what to post or how to grow, and I\'ll tailor it to that.';
+
+    document.getElementById('screen-login').style.display = 'none';
+    document.getElementById('screen-register').style.display = 'none';
+    document.getElementById('screen-app').style.display = 'flex';
+  }
+
+  function logout(){
+    currentUser = null;
+    localStorage.removeItem('trendforge_user');
+    showScreen('login');
+  }
+
+  async function handleLogin(){
+    hideError('login-error');
+    var email = document.getElementById('login-email').value.trim();
+    var password = document.getElementById('login-password').value;
+    if(!email || !password){ showError('login-error', 'Enter your email and password.'); return; }
+
+    setLoading('login-btn', 'Logging in...', true);
+    try{
+      var res = await fetch('/api/login', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ email: email, password: password })
+      });
+      var data = await res.json();
+      if(!res.ok){ showError('login-error', data.error || 'Login failed.'); return; }
+      enterApp(data.user);
+    }catch(err){
+      showError('login-error', 'Could not reach the server. Check your connection.');
+    }finally{
+      setLoading('login-btn', '', false, 'Log in');
+    }
+  }
+
+  async function handleRegister(){
+    hideError('register-error');
+    var business_name = document.getElementById('reg-name').value.trim();
+    var niche = document.getElementById('reg-niche').value;
+    var content_type = document.getElementById('reg-content').value;
+    var email = document.getElementById('reg-email').value.trim();
+    var password = document.getElementById('reg-password').value;
+
+    if(!business_name || !email || !password){
+      showError('register-error', 'Fill in your business name, email, and password.');
+      return;
+    }
+
+    setLoading('register-btn', 'Creating account...', true);
+    try{
+      var res = await fetch('/api/register', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ email: email, password: password, business_name: business_name, niche: niche, content_type: content_type })
+      });
+      var data = await res.json();
+      if(!res.ok){ showError('register-error', data.error || 'Could not create account.'); return; }
+      enterApp(data.user);
+    }catch(err){
+      showError('register-error', 'Could not reach the server. Check your connection.');
+    }finally{
+      setLoading('register-btn', '', false, 'Create account');
+    }
+  }
+
+  // Restore session on page load if the user already logged in before
+  (function restoreSession(){
+    var saved = localStorage.getItem('trendforge_user');
+    if(saved){
+      try{ enterApp(JSON.parse(saved)); }catch(e){ localStorage.removeItem('trendforge_user'); }
+    }
+  })();
+
+  function showTab(name){
+    document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.remove('active'); });
+    document.getElementById('tab-' + name).classList.add('active');
+    document.querySelectorAll('.navitem').forEach(function(n){ n.classList.remove('active'); });
+    document.querySelector('.navitem[data-tab="' + name + '"]').classList.add('active');
+    document.querySelector('.content').scrollTop = 0;
+    document.getElementById('chat-input-bar').style.display = name === 'coach' ? 'flex' : 'none';
+  }
+
+  document.querySelectorAll('.pills').forEach(function(group){
+    group.querySelectorAll('.pill').forEach(function(pill){
+      pill.addEventListener('click', function(){
+        group.querySelectorAll('.pill').forEach(function(p){ p.classList.remove('active'); });
+        pill.classList.add('active');
+      });
+    });
+  });
+
+  bindCopyButtons();
+
+  function bindCopyButtons(){
+    document.querySelectorAll('.btn-copy').forEach(function(btn){
+      btn.onclick = function(){
+        var card = btn.closest('.idea-card');
+        var text = card.querySelector('.idea-hook').textContent + '\n\n' +
+          Array.from(card.querySelectorAll('.idea-script li')).map(function(li){ return '- ' + li.textContent; }).join('\n') + '\n\n' +
+          card.querySelector('.idea-caption').textContent + '\n' +
+          card.querySelector('.idea-tags').textContent;
+        if(navigator.clipboard){ navigator.clipboard.writeText(text).catch(function(){}); }
+        var original = btn.textContent;
+        btn.textContent = 'Copied';
+        setTimeout(function(){ btn.textContent = original; }, 1200);
+      };
+    });
+  }
+
+  function renderIdeas(ideas){
+    var container = document.getElementById('forge-ideas');
+    container.innerHTML = ideas.map(function(idea, i){
+      var script = Array.isArray(idea.script) ? idea.script : JSON.parse(idea.script || '[]');
+      return '<div class="idea-card">' +
+        '<span class="idea-num">Idea ' + (i + 1) + '</span>' +
+        '<div class="idea-hook">' + idea.hook + '</div>' +
+        '<ul class="idea-script">' + script.map(function(s){ return '<li>' + s + '</li>'; }).join('') + '</ul>' +
+        '<div class="idea-caption">' + idea.caption + '</div>' +
+        '<div class="idea-tags">' + idea.hashtags + '</div>' +
+        '<button class="btn-copy">Copy all</button>' +
+        '</div>';
+    }).join('');
+    bindCopyButtons();
+  }
+
+  async function regenIdeas(){
+    var btn = document.getElementById('forge-regen-btn');
+    var trendName = document.getElementById('forge-trend-name').textContent;
+    var activeNichePill = document.querySelector('#tab-forge .pill.active');
+    var niche = activeNichePill ? activeNichePill.textContent : 'Business';
+
+    btn.disabled = true;
+    btn.textContent = 'Generating...';
+    try{
+      var res = await fetch('/api/forge', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          user_id: currentUser ? currentUser.id : null,
+          trend_title: trendName,
+          niche: niche
+        })
+      });
+      var data = await res.json();
+      if(res.ok && data.ideas && data.ideas.length){
+        renderIdeas(data.ideas);
+      }
+    }catch(err){
+      // backend not connected yet — leave existing ideas on screen
+    }finally{
+      btn.disabled = false;
+      btn.textContent = 'Generate 3 new ideas';
+    }
+  }
+
+  function toggleCheck(el){ el.classList.toggle('done'); el.innerHTML = el.classList.contains('done') ? '<svg class="icon" viewBox="0 0 24 24"><path d="m5 13 4 4 10-10"/></svg>' : ''; }
+
+  function appendMsg(text, who){
+    var scroll = document.getElementById('chat-scroll');
+    var div = document.createElement('div');
+    div.className = 'msg ' + who;
+    div.textContent = text;
+    scroll.appendChild(div);
+    document.querySelector('.content').scrollTop = document.querySelector('.content').scrollHeight;
+  }
+
+  async function askCoach(message){
+    appendMsg(message, 'user');
+    var thinkingId = 'thinking-' + Date.now();
+    appendMsg('Thinking...', 'ai');
+    var scroll = document.getElementById('chat-scroll');
+    var thinkingEl = scroll.lastElementChild;
+
+    try{
+      var res = await fetch('/api/coach', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          user_id: currentUser ? currentUser.id : null,
+          business_name: currentUser ? currentUser.business_name : 'your business',
+          niche: currentUser ? currentUser.niche : 'general',
+          content_type: currentUser ? currentUser.content_type : 'content',
+          message: message
+        })
+      });
+      var data = await res.json();
+      thinkingEl.textContent = res.ok ? data.reply : (data.error || "Sorry, I couldn't reply just now.");
+    }catch(err){
+      thinkingEl.textContent = "Couldn't reach the coach — check your connection and try again.";
+    }
+  }
+
+  function sendChat(){
+    var input = document.getElementById('chat-input');
+    var message = input.value.trim();
+    if(!message) return;
+    input.value = '';
+    askCoach(message);
+  }
+
+  function sendSuggestion(chip){
+    askCoach(chip.textContent);
+  }
+
+  document.getElementById('chat-input').addEventListener('keypress', function(e){
+    if(e.key === 'Enter') sendChat();
+  });
+</script>
+
+</body>
+</html>
