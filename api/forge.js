@@ -25,21 +25,22 @@ Give exactly 3 post ideas. Respond ONLY as JSON, no other text, in this exact sh
 [{"hook": "...", "script": ["...", "...", "..."], "caption": "...", "hashtags": "#tag1 #tag2 #tag3 #tag4 #tag5"}]`;
 
   try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages: [{ role: "user", content: prompt }],
-        max_tokens: 600,
-      }),
-    });
+    const response = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-goog-api-key": process.env.GEMINI_API_KEY,
+        },
+        body: JSON.stringify({
+          contents: [{ role: "user", parts: [{ text: prompt }] }],
+        }),
+      }
+    );
 
     const data = await response.json();
-    const raw = data.choices?.[0]?.message?.content ?? "[]";
+    const raw = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "[]";
     const clean = raw.replace(/```json|```/g, "").trim();
     const ideas = JSON.parse(clean);
 
@@ -59,4 +60,4 @@ Give exactly 3 post ideas. Respond ONLY as JSON, no other text, in this exact sh
   } catch (err) {
     return res.status(500).json({ error: "Could not generate ideas right now" });
   }
-};
+  }
