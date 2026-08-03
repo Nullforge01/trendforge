@@ -24,21 +24,22 @@ module.exports = async (req, res) => {
 Respond ONLY as JSON: {"title": "...", "type": "hot|rising|niche", "why_it_works": "1-2 sentences"}`;
 
     try {
-      const response = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: "gpt-4o-mini",
-          messages: [{ role: "user", content: prompt }],
-          max_tokens: 200,
-        }),
-      });
+      const response = await fetch(
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-goog-api-key": process.env.GEMINI_API_KEY,
+          },
+          body: JSON.stringify({
+            contents: [{ role: "user", parts: [{ text: prompt }] }],
+          }),
+        }
+      );
 
       const data = await response.json();
-      const raw = data.choices?.[0]?.message?.content ?? "{}";
+      const raw = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "{}";
       const clean = raw.replace(/```json|```/g, "").trim();
       const parsed = JSON.parse(clean);
 
@@ -60,4 +61,3 @@ Respond ONLY as JSON: {"title": "...", "type": "hot|rising|niche", "why_it_works
 
   return res.status(200).json({ refreshed: results });
 };
-          
