@@ -1,4 +1,5 @@
-POST /api/coach
+
+// POST /api/coach
 // Body: { user_id, business_name, niche, content_type, message }
 const { createClient } = require("@supabase/supabase-js");
 
@@ -23,24 +24,25 @@ Keep answers short (2-4 sentences), specific to their niche and content type, an
 Never invent fake statistics or guaranteed results.`;
 
   try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: message },
-        ],
-        max_tokens: 300,
-      }),
-    });
+    const response = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-goog-api-key": process.env.GEMINI_API_KEY,
+        },
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: systemPrompt }] },
+          contents: [{ role: "user", parts: [{ text: message }] }],
+        }),
+      }
+    );
 
     const data = await response.json();
-    const reply = data.choices?.[0]?.message?.content ?? "Sorry, I couldn't generate a reply just now.";
+    const reply =
+      data.candidates?.[0]?.content?.parts?.[0]?.text ??
+      "Sorry, I couldn't generate a reply just now.";
 
     if (user_id) {
       await supabase.from("chat_messages").insert([
