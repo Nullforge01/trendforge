@@ -28,12 +28,12 @@ trendforge/
    - Go to SQL Editor → paste the contents of `supabase/schema.sql` → Run
    - Go to Project Settings → API → copy your `Project URL` and `service_role` key
 
-**2. Get an OpenAI API key**
-   - platform.openai.com → API keys → create one
+**2. Get a free Gemini API key** (no credit card needed)
+   - aistudio.google.com → sign in with any Google account → "Get API key" → Create API key
 
 **3. Set environment variables in Vercel**
    - Your Vercel project → Settings → Environment Variables
-   - Add: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `OPENAI_API_KEY`, `CRON_SECRET` (make up any random string for this last one)
+   - Add: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `GEMINI_API_KEY`, `CRON_SECRET` (make up any random string for this last one)
 
 **4. Push this folder to your GitHub repo, then redeploy on Vercel**
    - Vercel auto-detects `/api/*.js` as serverless functions — no framework config needed
